@@ -40,14 +40,16 @@ fn run() -> telegram::error::Result<()> {
     println!(" - Send {}\n", "http://149.154.167.50:443/api");
 
     let mut client = Client::new()?;
-    client.send(req, |data: Response<schema::mtproto::ResPQ>| {
-        // [DEBUG] Step
-        println!(" - Response");
-        pprint(&data.to_bytes().unwrap());
+    client
+        .send(req, |data: Response<schema::mtproto::ResPQ>| {
+            // [DEBUG] Step
+            println!(" - Response");
+            pprint(&data.to_bytes().unwrap());
 
-        println!(" - Deserialized response");
-        println!("{:#?}\n", data);
-    }).unwrap();
+            println!(" - Deserialized response");
+            println!("{:#?}\n", data);
+        })
+        .unwrap();
 
     Ok(())
 }
