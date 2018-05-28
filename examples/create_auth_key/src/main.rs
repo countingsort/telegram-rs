@@ -2,18 +2,17 @@ extern crate env_logger;
 extern crate extprim;
 #[macro_use]
 extern crate extprim_literals;
-extern crate futures;
 extern crate hyper;
 extern crate log;
 extern crate telegram;
-extern crate tokio_core;
 
-use futures::Future;
-use telegram::{schema, Request, Response};
-use tokio_core::reactor::Core;
-
+use telegram::{schema, Client, Request, Response};
 
 fn main() {
+    run().unwrap();
+}
+
+fn run() -> telegram::error::Result<()> {
     env_logger::init().unwrap();
 
     // Request for (p,q) Authorization
@@ -40,18 +39,17 @@ fn main() {
     // [DEBUG] Step
     println!(" - Send {}\n", "http://149.154.167.50:443/api");
 
-    let mut core = Core::new().unwrap();
-    let client = telegram::Client::new(&core.handle());
-    let promise = client.send(req).map(|data: Response<schema::mtproto::ResPQ>| {
+    let mut client = Client::new()?;
+    client.send(req, |data: Response<schema::mtproto::ResPQ>| {
         // [DEBUG] Step
         println!(" - Response");
         pprint(&data.to_bytes().unwrap());
 
         println!(" - Deserialized response");
         println!("{:#?}\n", data);
-    });
+    }).unwrap();
 
-    core.run(promise).unwrap();
+    Ok(())
 }
 
 fn pprint(buffer: &[u8]) {
